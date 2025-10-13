@@ -1,0 +1,52 @@
+﻿@model IEnumerable<MemerApp.Dtos.MemberDto>
+
+@{
+    ViewData["Title"] = "會員列表";
+}
+
+<h1>會員</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">新增會員</a>
+</p>
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(m => m.MemberName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Phone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Birthday)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.CreatedDate)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    @Html.DisplayFor(m => item.MemberName)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.Phone)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.Birthday)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.CreatedDate)
+            </td>
+            <td>
+                    <a asp-action="Edit" asp-route-id="@item.MemberId" class="btn btn-sm btn-info">編輯資料</a> |
+                    <a asp-action="Details" asp-route-id="@item.MemberId" class="btn btn-sm btn-primary">顯示詳情</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MemberId" class="btn btn-sm btn-danger">刪除資料</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

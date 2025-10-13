@@ -1,0 +1,53 @@
+﻿@model IEnumerable<MemerApp.Dtos.ProductDto>
+
+@{
+    ViewData["Title"] = "產品列表";
+}
+
+<h1>產品</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">新增產品品項</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(m => m.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.PurchasePrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.SuggestedPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.CreatedDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    @Html.DisplayFor(m => item.ProductName)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.PurchasePrice)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.SuggestedPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.CreatedDate)
+            </td>
+            <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-info">編輯資料</a> |
+                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary">顯示詳情</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-danger">刪除資料</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

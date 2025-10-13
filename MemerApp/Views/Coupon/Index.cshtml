@@ -1,0 +1,53 @@
+﻿@model IEnumerable<MemerApp.Dtos.CouponDto>
+
+@{
+    ViewData["Title"] = "折扣列表";
+}
+
+<h1>折扣列表</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">新增折扣項目</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(m => m.CouponName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.CalculationMethod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.DiscountValue)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Remark)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(m => item.CouponName)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.CalculationMethod)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.DiscountValue)
+            </td>
+            <td>
+                @Html.DisplayFor(m => item.Remark)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.CouponId">編輯資料</a> |
+                <a asp-action="Details" asp-route-id="@item.CouponId">顯示詳情</a> |
+                <a asp-action="Delete" asp-route-id="@item.CouponId">刪除資料</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

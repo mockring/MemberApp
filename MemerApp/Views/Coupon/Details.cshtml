@@ -1,0 +1,42 @@
+﻿@model MemerApp.Dtos.CouponDto
+
+@{
+    ViewData["Title"] = "折扣項目資料";
+}
+
+<h1>折扣項目資料</h1>
+
+<div>
+    <h4>折扣項目</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(m => m.CouponName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(m => m.CouponName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(m => m.CalculationMethod)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(m => m.CalculationMethod)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(m => m.DiscountValue)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(m => m.DiscountValue)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(m => m.Remark)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(m => m.Remark)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.CouponId">編輯</a> |
+    <a asp-action="Index">回到折扣列表</a>
+</div>
