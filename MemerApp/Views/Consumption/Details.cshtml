@@ -1,0 +1,48 @@
+﻿@model MemerApp.Dtos.ConsumptionDto
+@{
+    ViewData["Title"] = "Consumption Details";
+}
+
+<h2>消費明細</h2>
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">會員姓名</dt>
+    <dd class="col-sm-4">@Model.MemberName</dd>
+
+    <dt class="col-sm-2">電話</dt>
+    <dd class="col-sm-4">@Model.MemberPhone</dd>
+
+    <dt class="col-sm-2">時間</dt>
+    <dd class="col-sm-4">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</dd>
+
+    <dt class="col-sm-2">總金額 (未折扣)</dt>
+    <dd class="col-sm-4">@Model.TotalBeforeDiscount.ToString("N2")</dd>
+
+    <dt class="col-sm-2">總金額 (折後)</dt>
+    <dd class="col-sm-4">@Model.TotalAfterDiscount.ToString("N2")</dd>
+</dl>
+
+<h4>項目明細</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr><th>產品</th><th>單價</th><th>數量</th><th>小計</th><th>Coupon</th><th>折扣</th><th>小計(折後)</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var l in Model.Lines)
+        {
+            <tr>
+                <td>@l.ProductName ?? l.productName</td>
+                <td class="text-end">@l.UnitPrice.ToString("N2")</td>
+                <td class="text-end">@l.Quantity</td>
+                <td class="text-end">@l.LineSubtotal.ToString("N2")</td>
+                <td>@l.CouponName</td>
+                <td class="text-end">@l.DiscountAmount.ToString("N2")</td>
+                <td class="text-end">@l.LineTotal.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>

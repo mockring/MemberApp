@@ -4,6 +4,7 @@ using MemerApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemerApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251013024011_ConsumptionEntities")]
+    partial class ConsumptionEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,41 @@ namespace MemerApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MemerApp.Models.ConsumptionLineModel", b =>
+            modelBuilder.Entity("MemerApp.Models.Consumption", b =>
+                {
+                    b.Property<int>("ConsumptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConsumptionId"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MemberName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MemberPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("TotalAfterDiscount")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<decimal>("TotalBeforeDiscount")
+                        .HasColumnType("decimal(12,2)");
+
+                    b.HasKey("ConsumptionId");
+
+                    b.ToTable("Consumptions");
+                });
+
+            modelBuilder.Entity("MemerApp.Models.ConsumptionLine", b =>
                 {
                     b.Property<int>("ConsumptionLineId")
                         .ValueGeneratedOnAdd()
@@ -76,40 +113,6 @@ namespace MemerApp.Migrations
                     b.ToTable("ConsumptionLines");
                 });
 
-            modelBuilder.Entity("MemerApp.Models.ConsumptionModel", b =>
-                {
-                    b.Property<int>("ConsumptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConsumptionId"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MemberName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("MemberPhone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("TotalAfterDiscount")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<decimal>("TotalBeforeDiscount")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.HasKey("ConsumptionId");
-
-                    b.ToTable("Consumptions");
-                });
-
             modelBuilder.Entity("MemerApp.Models.CouponModel", b =>
                 {
                     b.Property<int>("CouponId")
@@ -126,7 +129,7 @@ namespace MemerApp.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("CouponValue")
+                    b.Property<decimal>("DiscountValue")
                         .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("Remark")
@@ -195,9 +198,9 @@ namespace MemerApp.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("MemerApp.Models.ConsumptionLineModel", b =>
+            modelBuilder.Entity("MemerApp.Models.ConsumptionLine", b =>
                 {
-                    b.HasOne("MemerApp.Models.ConsumptionModel", "Consumption")
+                    b.HasOne("MemerApp.Models.Consumption", "Consumption")
                         .WithMany("Lines")
                         .HasForeignKey("ConsumptionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -206,7 +209,7 @@ namespace MemerApp.Migrations
                     b.Navigation("Consumption");
                 });
 
-            modelBuilder.Entity("MemerApp.Models.ConsumptionModel", b =>
+            modelBuilder.Entity("MemerApp.Models.Consumption", b =>
                 {
                     b.Navigation("Lines");
                 });

@@ -1,0 +1,28 @@
+﻿@model MemerApp.Dtos.ConsumptionDto
+@{
+    ViewData["Title"] = "Delete Consumption";
+}
+
+<h2>Delete Consumption</h2>
+
+<div class="alert alert-warning">
+    確定要刪除此消費紀錄嗎？此動作不可復原。
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">會員</dt>
+    <dd class="col-sm-10">@Model.MemberName (@Model.MemberPhone)</dd>
+
+    <dt class="col-sm-2">時間</dt>
+    <dd class="col-sm-10">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</dd>
+
+    <dt class="col-sm-2">總金額 (折後)</dt>
+    <dd class="col-sm-10">@Model.TotalAfterDiscount.ToString("N2")</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.MemberId" />
+    <button type="submit" class="btn btn-danger">確定刪除</button>
+    <a asp-action="Index" class="btn btn-secondary">取消</a>
+</form>

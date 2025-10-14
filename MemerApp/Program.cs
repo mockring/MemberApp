@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IConsumptionService, ConsumptionService>();
 
 
 // 4. µù¥U AutoMapper

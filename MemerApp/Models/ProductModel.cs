@@ -17,13 +17,13 @@ namespace MemerApp.Models
 
         /// 進貨價格 (必填，整數，>0)
         [Required(ErrorMessage = "進貨價格為必填項目。")]
-        [Range(0, int.MaxValue, ErrorMessage = "進貨價格必須為正整數。")]
+        [Range(0, int.MaxValue, ErrorMessage = "進貨價格必須為整數。")]
         [Display(Name = "進貨價格")]
         public int PurchasePrice { get; set; }
 
         /// 建議售價 (必填，整數，>0)
         [Required(ErrorMessage = "建議售價為必填項目。")]
-        [Range(0, int.MaxValue, ErrorMessage = "建議售價必須為正整數。")]
+        [Range(0, int.MaxValue, ErrorMessage = "建議售價必須為整數。")]
         [Display(Name = "建議售價")]
         public int SuggestedPrice { get; set; }
 

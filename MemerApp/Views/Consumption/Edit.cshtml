@@ -1,0 +1,281 @@
+﻿@model MemerApp.Dtos.ConsumptionDto
+@using MemerApp.Dtos
+@{
+    ViewData["Title"] = "Edit Consumption";
+}
+
+<h2>編輯消費</h2>
+
+<form id="consumptionEditForm" class="mb-4">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="consumptionId" name="consumptionId" value="@Model.MemberId" />
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label">會員電話</label>
+            <div class="input-group">
+                <input id="memberPhone" name="MemberPhone" class="form-control" value="@Model.MemberPhone" />
+                <button id="btnLookupMember" type="button" class="btn btn-outline-secondary">查詢會員</button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">會員姓名</label>
+            <input id="memberName" name="MemberName" class="form-control" readonly value="@Model.MemberName" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">建立時間</label>
+            <input id="createdDate" name="CreatedDate" type="datetime-local" class="form-control"
+                   value="@Model.CreatedDate.ToString("yyyy-MM-ddTHH:mm")" />
+        </div>
+    </div>
+
+    <h5>商品項目</h5>
+    <table class="table table-bordered" id="linesTable">
+        <thead>
+            <tr>
+                <th>ProductId</th>
+                <th>產品名稱</th>
+                <th>單價</th>
+                <th>數量</th>
+                <th>小計</th>
+                <th>折扣</th>
+                <th>計算</th>
+                <th>小計(折後)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="linesBody">
+            <!-- JS 會用 Model.Lines 新增行 -->
+        </tbody>
+    </table>
+
+    <button id="btnAddLine" type="button" class="btn btn-sm btn-secondary mb-3">+ 新增商品</button>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-6">
+            <dl class="row">
+                <dt class="col-sm-6">總金額 (未折扣)</dt>
+                <dd class="col-sm-6 text-end"><span id="totalBefore">0.00</span></dd>
+
+                <dt class="col-sm-6">總金額 (折後)</dt>
+                <dd class="col-sm-6 text-end"><strong id="totalAfter">0.00</strong></dd>
+            </dl>
+
+            <div class="d-flex justify-content-end">
+                <button id="btnSubmit" type="button" class="btn btn-primary">儲存變更</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // 此處程式碼與 Create 頁面相同，差別在於：會載入 Model 內的 lines 作為初始值
+        let coupons = [];
+        let initialLines = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Lines ?? new List<MemerApp.Dtos.ConsumptionLineDto>()));
+        let memberPhoneInit = "@Model.MemberPhone";
+        let memberNameInit = "@Model.MemberName";
+
+        // 我們直接重用 Create 的函式：為避免重複貼上，這裡把整段 code 簡化為引用 create.js
+        // 但為了方便，你可以直接把 Create.js 內的全部 script 複製進來並在載入時用 initialLines 填充。
+        // 為了完整性，我把必要函式做簡短版本如下（實際專案可 refactor 公用腳本）:
+
+        // --- 以下為簡化版本（實務上建議把 Create 的完整 script 抽出成共用檔案） ---
+        async function loadCoupons() {
+            try {
+                const res = await fetch('/Consumption/GetCoupons');
+                if (!res.ok) return;
+                coupons = await res.json();
+            } catch (e) { console.error(e); }
+        }
+
+        function round2(v) { return Math.round((v + Number.EPSILON) * 100) / 100; }
+
+        function createCouponSelect(selectedId) {
+            const sel = document.createElement('select');
+            sel.className = 'form-select form-select-sm coupon-select';
+            sel.appendChild(Object.assign(document.createElement('option'), { value: '', textContent: '(無)' }));
+            coupons.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.couponId;
+                opt.textContent = `${c.couponName} (${c.calculationMethod} ${c.discountValue})`;
+                if (selectedId && selectedId == c.couponId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            sel.addEventListener('change', e => {
+                const row = e.target.closest('tr'); recalcLine(row);
+            });
+            return sel;
+        }
+
+        function addLineFrom(initial) {
+            // 相同 addLine 實作（參考 Create）
+            const tbody = document.getElementById('linesBody');
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td><div class="input-group input-group-sm">
+                    <input name="ProductId" class="form-control product-id" value="${initial.productId ?? initial.productId ?? ''}" />
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-lookup-product">查詢</button>
+                </div></td>
+                <td><input name="ProductName" class="form-control form-control-sm product-name" readonly value="${initial.productName ?? ''}" /></td>
+                <td><input name="UnitPrice" class="form-control form-control-sm unit-price text-end" readonly value="${initial.unitPrice ?? initial.unitPrice ?? 0}" /></td>
+                <td><input name="Quantity" type="number" min="1" class="form-control form-control-sm quantity text-end" value="${initial.quantity ?? 1}" /></td>
+                <td><input name="LineSubtotal" class="form-control form-control-sm line-subtotal text-end" readonly value="${initial.lineSubtotal ?? 0}" /></td>
+                <td class="coupon-cell"></td>
+                <td><input name="DiscountInfo" class="form-control form-control-sm discount-info" readonly value="${initial.discountInfo ?? ''}" /></td>
+                <td><input name="LineTotal" class="form-control form-control-sm line-total text-end" readonly value="${initial.lineTotal ?? 0}" /></td>
+                <td><button type="button" class="btn btn-sm btn-danger btn-remove-line">X</button></td>`;
+
+            tbody.appendChild(tr);
+
+            // populate coupon select
+            const couponCell = tr.querySelector('.coupon-cell');
+            couponCell.appendChild(createCouponSelect(initial.couponId));
+
+            // events
+            tr.querySelector('.btn-lookup-product').addEventListener('click', () => {
+                const pid = tr.querySelector('.product-id').value;
+                if (!pid) { alert('請輸入 ProductId'); return; }
+                fetchProductById(pid, tr);
+            });
+            tr.querySelector('.quantity').addEventListener('input', () => recalcLine(tr));
+            tr.querySelector('.btn-remove-line').addEventListener('click', () => { tr.remove(); recalcTotals(); });
+
+            recalcLine(tr);
+        }
+
+        async function fetchProductById(id, tr) {
+            const r = await fetch(`/Consumption/GetProductById?id=${encodeURIComponent(id)}`);
+            if (!r.ok) { alert('找不到產品'); return; }
+            const p = await r.json();
+            tr.querySelector('.product-name').value = p.productName;
+            tr.querySelector('.unit-price').value = p.suggestedPrice ?? p.suggestedPrice;
+            recalcLine(tr);
+        }
+
+        function recalcLine(tr) {
+            const unit = parseFloat(tr.querySelector('.unit-price').value || 0);
+            const qty = parseInt(tr.querySelector('.quantity').value || 0);
+            const subtotal = round2(unit * qty);
+            tr.querySelector('.line-subtotal').value = subtotal.toFixed(2);
+
+            const couponSel = tr.querySelector('.coupon-select');
+            const couponId = couponSel && couponSel.value ? parseInt(couponSel.value) : null;
+            const coupon = couponId ? coupons.find(c => c.couponId == couponId) : null;
+
+            let lineTotal = subtotal, discountInfo = '';
+            if (coupon) {
+                const method = (coupon.calculationMethod || coupon.calculationMethod).toString().toLowerCase();
+                const val = parseFloat(coupon.discountValue || coupon.discountValue);
+                switch (method) {
+                    case 'multiply': lineTotal = round2(subtotal * val); discountInfo = `x ${val}`; break;
+                    case 'subtract': lineTotal = round2(subtotal - val); discountInfo = `- ${val}`; break;
+                    case 'add': lineTotal = round2(subtotal + val); discountInfo = `+ ${val}`; break;
+                    case 'divide': if (val !== 0) { lineTotal = round2(subtotal / val); discountInfo = `/ ${val}`; } break;
+                }
+            }
+            if (lineTotal < 0) lineTotal = 0;
+            tr.querySelector('.discount-info').value = discountInfo;
+            tr.querySelector('.line-total').value = lineTotal.toFixed(2);
+            recalcTotals();
+        }
+
+        function recalcTotals() {
+            let before = 0, after = 0;
+            document.querySelectorAll('#linesBody tr').forEach(tr => {
+                before += parseFloat(tr.querySelector('.line-subtotal').value || 0);
+                after += parseFloat(tr.querySelector('.line-total').value || 0);
+            });
+            document.getElementById('totalBefore').textContent = round2(before).toFixed(2);
+            document.getElementById('totalAfter').textContent = round2(after).toFixed(2);
+        }
+
+        function buildPayload() {
+            const dto = {
+                memberId: @Model.MemberId,
+                memberName: document.getElementById('memberName').value || '',
+                memberPhone: document.getElementById('memberPhone').value || '',
+                createdDate: document.getElementById('createdDate').value,
+                lines: [],
+                totalBeforeDiscount: parseFloat(document.getElementById('totalBefore').textContent || 0),
+                totalAfterDiscount: parseFloat(document.getElementById('totalAfter').textContent || 0)
+            };
+            document.querySelectorAll('#linesBody tr').forEach(tr => {
+                const couponSel = tr.querySelector('.coupon-select');
+                const couponId = couponSel && couponSel.value ? parseInt(couponSel.value) : null;
+                const coupon = couponId ? coupons.find(c => c.couponId == couponId) : null;
+                dto.lines.push({
+                    productId: parseInt(tr.querySelector('.product-id').value || 0),
+                    productName: tr.querySelector('.product-name').value || '',
+                    unitPrice: parseFloat(tr.querySelector('.unit-price').value || 0),
+                    quantity: parseInt(tr.querySelector('.quantity').value || 0),
+                    lineSubtotal: parseFloat(tr.querySelector('.line-subtotal').value || 0),
+                    lineTotal: parseFloat(tr.querySelector('.line-total').value || 0),
+                    couponId: couponId,
+                    couponName: coupon ? coupon.couponName : null,
+                    couponMethod: coupon ? coupon.calculationMethod : null,
+                    couponValue: coupon ? coupon.discountValue : null,
+                    discountAmount: round2(parseFloat(tr.querySelector('.line-subtotal').value) - parseFloat(tr.querySelector('.line-total').value))
+                });
+            });
+            return dto;
+        }
+
+        async function submitEdit() {
+            const dto = buildPayload();
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const id = @Model.MemberId;
+            const res = await fetch(`/Consumption/Edit/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                body: JSON.stringify(dto)
+            });
+            if (!res.ok) { alert('儲存失敗'); return; }
+            const data = await res.json();
+            if (data.success) {
+                alert('儲存成功');
+                location.href = '/Consumption';
+            } else {
+                alert('儲存回傳失敗');
+            }
+        }
+
+        document.getElementById('btnAddLine').addEventListener('click', () => addLineFrom({}));
+
+        document.getElementById('btnLookupMember').addEventListener('click', async () => {
+            const phone = document.getElementById('memberPhone').value.trim();
+            if (!phone) { alert('請輸入電話'); return; }
+            const r = await fetch(`/Consumption/GetMemberByPhone?phone=${encodeURIComponent(phone)}`);
+            if (!r.ok) { alert('找不到會員'); return; }
+            const m = await r.json();
+            document.getElementById('memberName').value = m.memberName ?? m.memberName;
+        });
+
+        document.getElementById('btnSubmit').addEventListener('click', () => submitEdit());
+
+        (async () => {
+            await loadCoupons();
+            // 將 Model.Lines 加入 table
+            if (initialLines && initialLines.length) {
+                initialLines.forEach(l => {
+                    addLineFrom({
+                        productId: l.productId,
+                        productName: l.productName,
+                        unitPrice: l.unitPrice,
+                        quantity: l.quantity,
+                        lineSubtotal: l.lineSubtotal,
+                        lineTotal: l.lineTotal,
+                        couponId: l.couponId,
+                        discountInfo: '' // 會在 recalc 裡更新
+                    });
+                });
+            } else {
+                addLineFrom({});
+            }
+            // fill member fields
+            document.getElementById('memberPhone').value = memberPhoneInit;
+            document.getElementById('memberName').value = memberNameInit;
+        })();
+    </script>
+}

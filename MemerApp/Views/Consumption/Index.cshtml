@@ -1,0 +1,49 @@
+﻿@model IEnumerable<MemerApp.Dtos.ConsumptionDto>
+@{
+    ViewData["Title"] = "Consumptions";
+}
+
+<h2>消費紀錄</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">新增消費紀錄</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>會員</th>
+            <th>電話</th>
+            <th>時間</th>
+            <th>金額(未折扣)</th>
+            <th>金額(實際)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.ConsumptionId</td>
+                    <td>@c.MemberName</td>
+                    <td>@c.MemberPhone</td>
+                    <td>@c.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@String.Format("{0:N2}", c.TotalBeforeDiscount)</td>
+                    <td>@String.Format("{0:N2}", c.TotalAfterDiscount)</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@c.ConsumptionId" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@c.ConsumptionId" class="btn btn-sm btn-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@c.ConsumptionId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="7">尚無消費紀錄。</td></tr>
+        }
+    </tbody>
+</table>

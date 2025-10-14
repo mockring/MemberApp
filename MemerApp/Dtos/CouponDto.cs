@@ -16,10 +16,10 @@ namespace MemerApp.Dtos
         [Display(Name = "折扣名稱")]
         public string CouponName { get; set; } = string.Empty;
 
-        /// <summary>計算方式（必填，僅允許 Add/Subtract/Multiply/Divide）</summary>
+        /// <summary>計算方式（必填，僅允許 減或乘）</summary>
         [Required(ErrorMessage = "計算方式為必填")]
         [EnumDataType(typeof(CalculationMethod),
-            ErrorMessage = "計算方式必須是：Add、Subtract、Multiply 或 Divide")]
+            ErrorMessage = "計算方式必須是：減或乘 ")]
         [Display(Name = "計算方式")]
         public CalculationMethod CalculationMethod { get; set; }
 
@@ -28,7 +28,7 @@ namespace MemerApp.Dtos
         [Range(0, 100_000_000_000, ErrorMessage = "折扣數字必須為合法數值")]
         [Column(TypeName = "decimal(9,2)")]
         [Display(Name = "折扣數字")]
-        public decimal DiscountValue { get; set; }
+        public decimal CouponValue { get; set; }
 
         /// <summary>備註（可選）</summary>
         [Display(Name = "備註")]

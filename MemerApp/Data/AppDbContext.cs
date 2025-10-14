@@ -67,6 +67,7 @@ namespace MemerApp.Data
         }
 
         public DbSet<CouponModel> Coupons { get; set; }
-
+        public DbSet<ConsumptionModel> Consumptions { get; set; }
+        public DbSet<ConsumptionLineModel> ConsumptionLines { get; set; }
     }
 }
