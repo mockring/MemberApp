@@ -1,5 +1,7 @@
 ﻿@model MemerApp.Dtos.ConsumptionDto
 @using MemerApp.Dtos
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Serialization
 @{
     ViewData["Title"] = "Edit Consumption";
 }
@@ -33,15 +35,16 @@
     <table class="table table-bordered" id="linesTable">
         <thead>
             <tr>
-                <th>ProductId</th>
-                <th>產品名稱</th>
-                <th>單價</th>
-                <th>數量</th>
-                <th>小計</th>
-                <th>折扣</th>
-                <th>計算</th>
-                <th>小計(折後)</th>
-                <th></th>
+                <th style="width:280px">關鍵字</th>
+                <th style="width:280px">選擇產品</th>
+                <th style="width:320px">產品名稱</th>
+                <th style="width:120px">單價</th>
+                <th style="width:100px">數量</th>
+                <th style="width:120px">小計</th>
+                <th style="width:140px">折扣(Coupon)</th>
+                <th style="width:140px">折扣說明</th>
+                <th style="width:140px">小計(折後)</th>
+                <th style="width:80px"></th>
             </tr>
         </thead>
         <tbody id="linesBody">
@@ -55,10 +58,10 @@
         <div class="col-md-6 offset-md-6">
             <dl class="row">
                 <dt class="col-sm-6">總金額 (未折扣)</dt>
-                <dd class="col-sm-6 text-end"><span id="totalBefore">0.00</span></dd>
+                <dd class="col-sm-6 text-end"><span id="totalBefore">0</span></dd>
 
                 <dt class="col-sm-6">總金額 (折後)</dt>
-                <dd class="col-sm-6 text-end"><strong id="totalAfter">0.00</strong></dd>
+                <dd class="col-sm-6 text-end"><strong id="totalAfter">0</strong></dd>
             </dl>
 
             <div class="d-flex justify-content-end">
@@ -70,17 +73,14 @@
 
 @section Scripts {
     <script>
-        // 此處程式碼與 Create 頁面相同，差別在於：會載入 Model 內的 lines 作為初始值
         let coupons = [];
-        let initialLines = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Lines ?? new List<MemerApp.Dtos.ConsumptionLineDto>()));
+        let initialLines = @Html.Raw(JsonConvert.SerializeObject(
+            Model.Lines ?? new List<MemerApp.Dtos.ConsumptionLineDto>(),
+            new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+        ));
         let memberPhoneInit = "@Model.MemberPhone";
-        let memberNameInit = "@Model.MemberName";
+        let memberNameInit = "@Html.Raw(Model.MemberName)";
 
-        // 我們直接重用 Create 的函式：為避免重複貼上，這裡把整段 code 簡化為引用 create.js
-        // 但為了方便，你可以直接把 Create.js 內的全部 script 複製進來並在載入時用 initialLines 填充。
-        // 為了完整性，我把必要函式做簡短版本如下（實際專案可 refactor 公用腳本）:
-
-        // --- 以下為簡化版本（實務上建議把 Create 的完整 script 抽出成共用檔案） ---
         async function loadCoupons() {
             try {
                 const res = await fetch('/Consumption/GetCoupons');
@@ -98,7 +98,7 @@
             coupons.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.couponId;
-                opt.textContent = `${c.couponName} (${c.calculationMethod} ${c.discountValue})`;
+                opt.textContent = `${c.couponName} (${c.calculationMethod} ${c.couponValue})`;
                 if (selectedId && selectedId == c.couponId) opt.selected = true;
                 sel.appendChild(opt);
             });
@@ -109,40 +109,125 @@
         }
 
         function addLineFrom(initial) {
-            // 相同 addLine 實作（參考 Create）
             const tbody = document.getElementById('linesBody');
             const tr = document.createElement('tr');
 
             tr.innerHTML = `
-                <td><div class="input-group input-group-sm">
-                    <input name="ProductId" class="form-control product-id" value="${initial.productId ?? initial.productId ?? ''}" />
-                    <button type="button" class="btn btn-outline-secondary btn-sm btn-lookup-product">查詢</button>
-                </div></td>
+                <td>
+                    <div class="input-group input-group-sm mb-1">
+                        <input name="ProductKeyword" class="form-control product-keyword form-control-sm" placeholder="輸入產品關鍵字" value="${initial.productKeyword ?? ''}" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-search-product">搜尋</button>
+                    </div>
+                </td>
+                <td><div class="product-select-wrapper"></div></td>
                 <td><input name="ProductName" class="form-control form-control-sm product-name" readonly value="${initial.productName ?? ''}" /></td>
-                <td><input name="UnitPrice" class="form-control form-control-sm unit-price text-end" readonly value="${initial.unitPrice ?? initial.unitPrice ?? 0}" /></td>
+                <td><input name="UnitPrice" class="form-control form-control-sm unit-price text-end" readonly value="${initial.unitPrice ?? 0}" /></td>
                 <td><input name="Quantity" type="number" min="1" class="form-control form-control-sm quantity text-end" value="${initial.quantity ?? 1}" /></td>
                 <td><input name="LineSubtotal" class="form-control form-control-sm line-subtotal text-end" readonly value="${initial.lineSubtotal ?? 0}" /></td>
                 <td class="coupon-cell"></td>
                 <td><input name="DiscountInfo" class="form-control form-control-sm discount-info" readonly value="${initial.discountInfo ?? ''}" /></td>
                 <td><input name="LineTotal" class="form-control form-control-sm line-total text-end" readonly value="${initial.lineTotal ?? 0}" /></td>
-                <td><button type="button" class="btn btn-sm btn-danger btn-remove-line">X</button></td>`;
+                <td><button type="button" class="btn btn-sm btn-danger btn-remove-line">X</button></td>
+            `;
 
+            // append then add hidden product-id after row created
             tbody.appendChild(tr);
+
+            // create hidden input for product-id (so buildPayload can find it)
+            const hiddenId = document.createElement('input');
+            hiddenId.type = 'hidden';
+            hiddenId.name = 'ProductId';
+            hiddenId.className = 'product-id';
+            hiddenId.value = initial.productId ?? '';
+            tr.appendChild(hiddenId);
 
             // populate coupon select
             const couponCell = tr.querySelector('.coupon-cell');
             couponCell.appendChild(createCouponSelect(initial.couponId));
 
             // events
-            tr.querySelector('.btn-lookup-product').addEventListener('click', () => {
-                const pid = tr.querySelector('.product-id').value;
-                if (!pid) { alert('請輸入 ProductId'); return; }
-                fetchProductById(pid, tr);
+            tr.querySelector('.btn-search-product').addEventListener('click', () => {
+                const keyword = tr.querySelector('.product-keyword').value;
+                if (!keyword) { alert('請輸入關鍵字'); return; }
+                doProductSearch(keyword, tr); // 改為呼叫 doProductSearch，會建立 select
             });
+
             tr.querySelector('.quantity').addEventListener('input', () => recalcLine(tr));
             tr.querySelector('.btn-remove-line').addEventListener('click', () => { tr.remove(); recalcTotals(); });
 
-            recalcLine(tr);
+            // if initial contains productId (from DB), we can fetch details to fill name/price:
+            if (initial.productId) {
+                fetchProductById(initial.productId, tr);
+            } else {
+                recalcLine(tr);
+            }
+        }
+
+                // call search API and build select
+        async function doProductSearch(keyword, row) {
+            try {
+                console.log('Searching products for:', keyword);
+                const res = await fetch(`/Consumption/SearchProducts?keyword=${encodeURIComponent(keyword)}`);
+                console.log('Search status', res.status);
+                if (!res.ok) {
+                    const txt = await res.text();
+                    console.error('Search API error', txt);
+                    alert('搜尋產品失敗：' + res.status);
+                    return;
+                }
+                const list = await res.json();
+                console.log('Search result:', list);
+                buildProductSelect(row, list || []);
+            } catch (e) {
+                console.error('Search exception', e);
+                alert('搜尋失敗（例外）');
+            }
+        }
+
+        // build product select dropdown
+        function buildProductSelect(row, products) {
+            const wrapper = row.querySelector('.product-select-wrapper');
+            if (!wrapper) {
+                console.error('product-select-wrapper not found', row);
+                return;
+            }
+            wrapper.innerHTML = '';
+            if (!products || products.length === 0) {
+                wrapper.innerHTML = `<div class="text-muted small">找不到結果</div>`;
+                return;
+            }
+
+            const sel = document.createElement('select');
+            sel.className = 'form-select form-select-sm product-select';
+            const empty = document.createElement('option');
+            empty.value = '';
+            empty.textContent = '(請選擇)';
+            sel.appendChild(empty);
+
+            products.forEach(p => {
+                const id = p.productId ?? p.ProductId;
+                const name = p.productName ?? p.ProductName ?? '';
+                const price = p.suggestedPrice ?? p.SuggestedPrice ?? p.SuggestedPrice ?? p.suggestedPrice ?? '';
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = `${name} — 建議售價：${price}`;
+                sel.appendChild(opt);
+            });
+
+            sel.addEventListener('change', () => {
+                const pid = sel.value;
+                if (!pid) return;
+                // populate hidden id, name, price
+                row.querySelector('.product-id').value = pid;
+                const selected = products.find(x => (x.productId ?? x.ProductId) == pid);
+                if (selected) {
+                    row.querySelector('.product-name').value = selected.productName ?? selected.ProductName ?? '';
+                    row.querySelector('.unit-price').value = (selected.suggestedPrice ?? selected.SuggestedPrice ?? selected.suggestedPrice ?? 0);
+                }
+                recalcLine(row);
+            });
+
+            wrapper.appendChild(sel);
         }
 
         async function fetchProductById(id, tr) {
@@ -158,7 +243,7 @@
             const unit = parseFloat(tr.querySelector('.unit-price').value || 0);
             const qty = parseInt(tr.querySelector('.quantity').value || 0);
             const subtotal = round2(unit * qty);
-            tr.querySelector('.line-subtotal').value = subtotal.toFixed(2);
+            tr.querySelector('.line-subtotal').value = subtotal.toFixed(0);
 
             const couponSel = tr.querySelector('.coupon-select');
             const couponId = couponSel && couponSel.value ? parseInt(couponSel.value) : null;
@@ -167,17 +252,15 @@
             let lineTotal = subtotal, discountInfo = '';
             if (coupon) {
                 const method = (coupon.calculationMethod || coupon.calculationMethod).toString().toLowerCase();
-                const val = parseFloat(coupon.discountValue || coupon.discountValue);
+                const val = parseFloat(coupon.couponValue || coupon.couponValue);
                 switch (method) {
-                    case 'multiply': lineTotal = round2(subtotal * val); discountInfo = `x ${val}`; break;
-                    case 'subtract': lineTotal = round2(subtotal - val); discountInfo = `- ${val}`; break;
-                    case 'add': lineTotal = round2(subtotal + val); discountInfo = `+ ${val}`; break;
-                    case 'divide': if (val !== 0) { lineTotal = round2(subtotal / val); discountInfo = `/ ${val}`; } break;
+                    case '1': lineTotal = round2(subtotal * val); discountInfo = `x ${val}`; break;
+                    case '0': lineTotal = round2(subtotal - val); discountInfo = `- ${val}`; break;
                 }
             }
             if (lineTotal < 0) lineTotal = 0;
             tr.querySelector('.discount-info').value = discountInfo;
-            tr.querySelector('.line-total').value = lineTotal.toFixed(2);
+            tr.querySelector('.line-total').value = lineTotal.toFixed(0);
             recalcTotals();
         }
 
@@ -187,8 +270,8 @@
                 before += parseFloat(tr.querySelector('.line-subtotal').value || 0);
                 after += parseFloat(tr.querySelector('.line-total').value || 0);
             });
-            document.getElementById('totalBefore').textContent = round2(before).toFixed(2);
-            document.getElementById('totalAfter').textContent = round2(after).toFixed(2);
+            document.getElementById('totalBefore').textContent = round2(before).toFixed(0);
+            document.getElementById('totalAfter').textContent = round2(after).toFixed(0);
         }
 
         function buildPayload() {
@@ -215,7 +298,7 @@
                     couponId: couponId,
                     couponName: coupon ? coupon.couponName : null,
                     couponMethod: coupon ? coupon.calculationMethod : null,
-                    couponValue: coupon ? coupon.discountValue : null,
+                    couponValue: coupon ? coupon.couponValue : null,
                     discountAmount: round2(parseFloat(tr.querySelector('.line-subtotal').value) - parseFloat(tr.querySelector('.line-total').value))
                 });
             });
@@ -260,7 +343,6 @@
             if (initialLines && initialLines.length) {
                 initialLines.forEach(l => {
                     addLineFrom({
-                        productId: l.productId,
                         productName: l.productName,
                         unitPrice: l.unitPrice,
                         quantity: l.quantity,

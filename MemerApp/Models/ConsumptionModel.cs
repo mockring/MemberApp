@@ -22,10 +22,10 @@ namespace MemerApp.Models
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal TotalBeforeDiscount { get; set; }
 
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal TotalAfterDiscount { get; set; }
 
         public ICollection<ConsumptionLineModel> Lines { get; set; } = new List<ConsumptionLineModel>();
@@ -36,7 +36,7 @@ namespace MemerApp.Models
         [Key]
         public int ConsumptionLineId { get; set; }
 
-        [ForeignKey(nameof(Consumption))]
+        [ForeignKey(nameof(Consumption))] // specify foreign key relationship
         public int ConsumptionId { get; set; }
 
         public ConsumptionModel? Consumption { get; set; }
@@ -48,13 +48,13 @@ namespace MemerApp.Models
         [StringLength(200)]
         public string ProductName { get; set; } = string.Empty;
 
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal UnitPrice { get; set; }
 
         public int Quantity { get; set; }
 
         // subtotal = UnitPrice * Quantity
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal LineSubtotal { get; set; }
 
         // Applied coupon (optional)
@@ -68,15 +68,15 @@ namespace MemerApp.Models
         //CouponModel.CalculationMethod
         public CalculationMethod? CouponMethod { get; set; }
 
-        [Column(TypeName = "decimal(12,4)")]
+        [Column(TypeName = "decimal(12,2)")]
         public decimal? CouponValue { get; set; }
 
         // how much discount was applied (positive when discount reduces price)
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal DiscountAmount { get; set; }
 
         // final line total after coupon
-        [Column(TypeName = "decimal(12,2)")]
+        [Column(TypeName = "decimal(12,0)")]
         public decimal LineTotal { get; set; }
     }
 }

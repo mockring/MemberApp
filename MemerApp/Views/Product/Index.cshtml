@@ -9,8 +9,8 @@
 <p>
     <a asp-action="Create" class="btn btn-success">新增產品品項</a>
 </p>
-<table class="table">
-    <thead>
+<table class="table table-striped">
+    <thead class ="thead-light">
         <tr>
             <th>
                 @Html.DisplayNameFor(m => m.ProductName)
@@ -43,9 +43,9 @@
                 @Html.DisplayFor(m => item.CreatedDate)
             </td>
             <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-info">編輯資料</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary">顯示詳情</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-danger">刪除資料</a>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId">編輯資料</a> |
+                    <a asp-action="Details" asp-route-id="@item.ProductId">顯示詳情</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProductId">刪除資料</a>
             </td>
         </tr>
 }

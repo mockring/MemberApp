@@ -20,10 +20,10 @@
     <dd class="col-sm-4">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</dd>
 
     <dt class="col-sm-2">總金額 (未折扣)</dt>
-    <dd class="col-sm-4">@Model.TotalBeforeDiscount.ToString("N2")</dd>
+    <dd class="col-sm-4">@Model.TotalBeforeDiscount.ToString("N0")</dd>
 
     <dt class="col-sm-2">總金額 (折後)</dt>
-    <dd class="col-sm-4">@Model.TotalAfterDiscount.ToString("N2")</dd>
+    <dd class="col-sm-4">@Model.TotalAfterDiscount.ToString("N0")</dd>
 </dl>
 
 <h4>項目明細</h4>
@@ -35,13 +35,13 @@
         @foreach (var l in Model.Lines)
         {
             <tr>
-                <td>@l.ProductName ?? l.productName</td>
-                <td class="text-end">@l.UnitPrice.ToString("N2")</td>
+                <td>@l.ProductName</td>
+                <td class="text-end">@l.UnitPrice.ToString("N0")</td>
                 <td class="text-end">@l.Quantity</td>
-                <td class="text-end">@l.LineSubtotal.ToString("N2")</td>
+                <td class="text-end">@l.LineSubtotal.ToString("N0")</td>
                 <td>@l.CouponName</td>
-                <td class="text-end">@l.DiscountAmount.ToString("N2")</td>
-                <td class="text-end">@l.LineTotal.ToString("N2")</td>
+                <td class="text-end">@l.DiscountAmount.ToString("N0")</td>
+                <td class="text-end">@l.LineTotal.ToString("N0")</td>
             </tr>
         }
     </tbody>

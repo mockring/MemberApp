@@ -56,10 +56,10 @@
         <div class="col-md-6 offset-md-6">
             <dl class="row">
                 <dt class="col-sm-6">總金額 (未折扣)</dt>
-                <dd class="col-sm-6 text-end"><span id="totalBefore">0.00</span></dd>
+                <dd class="col-sm-6 text-end"><span id="totalBefore">0</span></dd>
 
                 <dt class="col-sm-6">總金額 (折後)</dt>
-                <dd class="col-sm-6 text-end"><strong id="totalAfter">0.00</strong></dd>
+                <dd class="col-sm-6 text-end"><strong id="totalAfter">0</strong></dd>
             </dl>
 
             <div class="d-flex justify-content-end">
@@ -167,7 +167,7 @@
 
             // 6) subtotal (td5)
             const tdSubtotal = document.createElement('td');
-            tdSubtotal.innerHTML = `<input name="LineSubtotal" class="form-control form-control-sm line-subtotal text-end" readonly value="${initial.lineSubtotal ?? '0.00'}" />`;
+            tdSubtotal.innerHTML = `<input name="LineSubtotal" class="form-control form-control-sm line-subtotal text-end" readonly value="${initial.lineSubtotal ?? ''}" />`;
             tr.appendChild(tdSubtotal);
 
             // 7) coupon select (td6)
@@ -182,7 +182,7 @@
 
             // 9) line total (td8)
             const tdLineTotal = document.createElement('td');
-            tdLineTotal.innerHTML = `<input name="LineTotal" class="form-control form-control-sm line-total text-end" readonly value="${initial.lineTotal ?? '0.00'}" />`;
+            tdLineTotal.innerHTML = `<input name="LineTotal" class="form-control form-control-sm line-total text-end" readonly value="${initial.lineTotal ?? ''}" />`;
             tr.appendChild(tdLineTotal);
 
             // 10) action (td9)
@@ -302,54 +302,28 @@
         }
 
         // 計算列
-        function recalcLine(row) {
-            const unit = parseFloat(row.querySelector('.unit-price').value || 0);
-            const qty = parseInt(row.querySelector('.quantity').value || 0);
+        function recalcLine(tr) {
+            const unit = parseFloat(tr.querySelector('.unit-price').value || 0);
+            const qty = parseInt(tr.querySelector('.quantity').value || 0);
             const subtotal = round2(unit * qty);
-            row.querySelector('.line-subtotal').value = subtotal.toFixed(2);
+            tr.querySelector('.line-subtotal').value = subtotal.toFixed(2);
 
-            const couponSel = row.querySelector('.coupon-select');
+            const couponSel = tr.querySelector('.coupon-select');
             const couponId = couponSel && couponSel.value ? parseInt(couponSel.value) : null;
-            let coupon = null;
-            if (couponId) coupon = (coupons || []).find(c => (c.couponId ?? c.CouponId) == couponId);
+            const coupon = couponId ? coupons.find(c => c.couponId == couponId) : null;
 
-            let lineTotal = subtotal;
-            let discountInfo = '';
+            let lineTotal = subtotal, discountInfo = '';
             if (coupon) {
-                const method = (coupon.calculationMethod ?? coupon.CalculationMethod ?? '').toString().toLowerCase();
-                const val = parseFloat(coupon.couponValue ?? coupon.CouponValue ?? coupon.discountValue ?? 0);
-
-                if (method.includes('乘') || method.startsWith('mul') || method.includes('multiply')) {
-                    lineTotal = round2(subtotal * val);
-                    discountInfo = `x ${val}`;
-                } else if (method.includes('減') || method.startsWith('sub') || method.includes('subtract')) {
-                    lineTotal = round2(subtotal - val);
-                    discountInfo = `- ${val}`;
-                } else if (method.includes('加') || method.startsWith('add')) {
-                    lineTotal = round2(subtotal + val);
-                    discountInfo = `+ ${val}`;
-                } else if (method.includes('除') || method.startsWith('div') || method.includes('divide')) {
-                    if (val !== 0) {
-                        lineTotal = round2(subtotal / val);
-                        discountInfo = `/ ${val}`;
-                    }
-                } else {
-                    // fallback: ratio <1 treat as multiply, >1 treat as subtract
-                    if (val > 0 && val <= 1) {
-                        lineTotal = round2(subtotal * val);
-                        discountInfo = `x ${val}`;
-                    } else if (val > 1) {
-                        lineTotal = round2(subtotal - val);
-                        discountInfo = `- ${val}`;
-                    }
+                const method = (coupon.calculationMethod || coupon.calculationMethod).toString().toLowerCase();
+                const val = parseFloat(coupon.couponValue || coupon.couponValue);
+                switch (method) {
+                    case '1': lineTotal = round2(subtotal * val); discountInfo = `x ${val}`; break;
+                    case '0': lineTotal = round2(subtotal - val); discountInfo = `- ${val}`; break;
                 }
             }
-
             if (lineTotal < 0) lineTotal = 0;
-
-            row.querySelector('.discount-info').value = discountInfo;
-            row.querySelector('.line-total').value = lineTotal.toFixed(2);
-
+            tr.querySelector('.discount-info').value = discountInfo;
+            tr.querySelector('.line-total').value = lineTotal.toFixed(2);
             recalcTotals();
         }
 
