@@ -100,10 +100,10 @@ namespace MemerApp.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("TotalAfterDiscount")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.Property<decimal>("TotalBeforeDiscount")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.HasKey("ConsumptionId");
 

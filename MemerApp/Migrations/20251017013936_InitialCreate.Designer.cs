@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemerApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251013061556_ConsumptionEntitiesV1")]
-    partial class ConsumptionEntitiesV1
+    [Migration("20251017013936_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,16 +47,16 @@ namespace MemerApp.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal?>("CouponValue")
-                        .HasColumnType("decimal(12,4)");
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.Property<decimal>("LineSubtotal")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.Property<decimal>("LineTotal")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -70,7 +70,7 @@ namespace MemerApp.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.HasKey("ConsumptionLineId");
 
@@ -103,10 +103,10 @@ namespace MemerApp.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("TotalAfterDiscount")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.Property<decimal>("TotalBeforeDiscount")
-                        .HasColumnType("decimal(12,2)");
+                        .HasColumnType("decimal(12,0)");
 
                     b.HasKey("ConsumptionId");
 
@@ -129,7 +129,7 @@ namespace MemerApp.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("DiscountValue")
+                    b.Property<decimal>("CouponValue")
                         .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("Remark")
