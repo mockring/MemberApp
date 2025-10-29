@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using MemerApp.Data;
-using MemerApp.Models;
-using MemerApp.Dtos;
+using MemberApp.Data;
+using MemberApp.Models;
+using MemberApp.Dtos;
+using MemberApp.Interface;
 
-namespace MemerApp.Services
+namespace MemberApp.Services
 {
     public class ProductService : IProductService
     {

@@ -1,8 +1,8 @@
-﻿using MemerApp.Dtos;
-using MemerApp.Services;
+﻿using MemberApp.Dtos;
+using MemberApp.Interface;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MemerApp.Controllers
+namespace MemberApp.Controllers
 {
     public class ProductController : Controller
     {

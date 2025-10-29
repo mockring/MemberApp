@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MemerApp.Dtos
+namespace MemberApp.Dtos
 {
     /// <summary>
     /// 產品資料傳輸物件 (DTO)

@@ -1,5 +1,5 @@
-﻿@model MemerApp.Dtos.ConsumptionDto
-@using MemerApp.Dtos
+﻿@model MemberApp.Dtos.ConsumptionDto
+@using MemberApp.Dtos
 @using Newtonsoft.Json
 @using Newtonsoft.Json.Serialization
 @{
@@ -75,7 +75,7 @@
     <script>
         let coupons = [];
         let initialLines = @Html.Raw(JsonConvert.SerializeObject(
-            Model.Lines ?? new List<MemerApp.Dtos.ConsumptionLineDto>(),
+            Model.Lines ?? new List<MemberApp.Dtos.ConsumptionLineDto>(),
             new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
         ));
         let memberPhoneInit = "@Model.MemberPhone";

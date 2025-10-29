@@ -1,17 +1,10 @@
-﻿using MemerApp.Models;
+﻿using MemberApp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemerApp.Data
+namespace MemberApp.Data
 {
-    /// <summary>
-    /// EF Core 的 DbContext，用來對應資料庫
-    /// </summary>
     public class AppDbContext : DbContext
     {
-        /// <summary>
-        /// 建構子：允許 DI 注入 DbContextOptions
-        /// </summary>
-        /// <param name="options">DbContextOptions 由 Startup/Program 注入</param>
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -20,8 +13,12 @@ namespace MemerApp.Data
         // --------------------------------------------------------------------
         //  DbSet 屬性：對應資料表
         // --------------------------------------------------------------------
+        public DbSet<UserModel> Users { get; set; }
         public DbSet<MemberModel> Members { get; set; }
         public DbSet<ProductModel> Products { get; set; }
+        public DbSet<CouponModel> Coupons { get; set; }
+        public DbSet<ConsumptionModel> Consumptions { get; set; }
+        public DbSet<ConsumptionLineModel> ConsumptionLines { get; set; }
 
         // --------------------------------------------------------------------
         //  可選：若你不想把連線字串寫進 appsettings.json，直接在此設定
@@ -63,11 +60,12 @@ namespace MemerApp.Data
                        .HasDefaultValueSql("GETDATE()");
             });
 
-            // 你還可以在此加入索引、複合鍵、資料庫關聯等設定
+            // 建立「Account」唯一索引，避免重複帳號
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(u => u.Account)
+                .IsUnique();
         }
 
-        public DbSet<CouponModel> Coupons { get; set; }
-        public DbSet<ConsumptionModel> Consumptions { get; set; }
-        public DbSet<ConsumptionLineModel> ConsumptionLines { get; set; }
+
     }
 }

@@ -1,7 +1,7 @@
-﻿using MemerApp.Dtos;
+﻿using MemberApp.Dtos;
 using System.Threading.Tasks;
 
-namespace MemerApp.Services
+namespace MemberApp.Interface
 {
     public interface IConsumptionService
     {

@@ -1,6 +1,6 @@
-﻿using MemerApp.Dtos;
+﻿using MemberApp.Dtos;
 
-namespace MemerApp.Services
+namespace MemberApp.Interface
 {
     public interface IProductService
     {

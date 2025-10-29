@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using MemerApp.Models; // for CalculationMethod enum
+using MemberApp.Models; // for CalculationMethod enum
 
-namespace MemerApp.Dtos
+namespace MemberApp.Dtos
 {
     public class ConsumptionLineDto
     {

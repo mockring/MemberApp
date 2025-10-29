@@ -1,13 +1,12 @@
-﻿using MemerApp.Models;
+﻿using MemberApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MemerApp.Dtos
+namespace MemberApp.Dtos
 {
     /// 折扣券資料傳輸物件 (DTO)
     public class CouponDto
     {
-        /// <summary>折扣券 ID（可選，創建時不填）</summary>
         public int CouponId { get; set; }
 
         /// <summary>折扣券名稱（必填）</summary>

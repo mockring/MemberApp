@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MemerApp.Migrations
+namespace MemberApp.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -51,7 +51,7 @@ namespace MemerApp.Migrations
                 {
                     MemberId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MemberName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    MemberName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Birthday = table.Column<DateTime>(type: "date", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "date", nullable: false, defaultValueSql: "GETDATE()")
@@ -75,6 +75,22 @@ namespace MemerApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Account = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    PasswordSalt = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,6 +127,12 @@ namespace MemerApp.Migrations
                 name: "IX_ConsumptionLines_ConsumptionId",
                 table: "ConsumptionLines",
                 column: "ConsumptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Account",
+                table: "Users",
+                column: "Account",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -127,6 +149,9 @@ namespace MemerApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Consumptions");

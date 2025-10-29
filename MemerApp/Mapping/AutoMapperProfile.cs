@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using MemerApp.Models;
-using MemerApp.Dtos;
+using MemberApp.Models;
+using MemberApp.Dtos;
 
 namespace MemerApp.Mapping;
     public class AutoMapperProfile : Profile

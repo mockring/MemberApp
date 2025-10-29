@@ -1,22 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MemerApp.Dtos; // for CalculationMethod if you defined enum there
+using MemberApp.Dtos; // for CalculationMethod if you defined enum there
 
-namespace MemerApp.Models
+namespace MemberApp.Models
 {
     public class ConsumptionModel
     {
         [Key]
         public int ConsumptionId { get; set; }
 
-        // 參照 Member（如果使用 MemberId 作 FK）
         public int MemberId { get; set; }
 
         [Required]
         [StringLength(100)]
         public string MemberName { get; set; } = string.Empty;
 
-        // for quick lookup (optional)
         [StringLength(20)]
         public string? MemberPhone { get; set; }
 
@@ -36,12 +34,11 @@ namespace MemerApp.Models
         [Key]
         public int ConsumptionLineId { get; set; }
 
-        [ForeignKey(nameof(Consumption))] // specify foreign key relationship
+        [ForeignKey(nameof(Consumption))]
         public int ConsumptionId { get; set; }
 
         public ConsumptionModel? Consumption { get; set; }
 
-        // Product reference
         public int ProductId { get; set; }
 
         [Required]

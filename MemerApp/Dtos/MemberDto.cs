@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MemerApp.Dtos
+namespace MemberApp.Dtos
 {
     public class MemberDto
     {

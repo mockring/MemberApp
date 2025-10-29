@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MemerApp.Dtos;
-using MemerApp.Services;
+using MemberApp.Dtos;
+using MemberApp.Interface;
 
-namespace MemerApp.Controllers
+namespace MemberApp.Controllers
 {
     public class ConsumptionController : Controller
     {

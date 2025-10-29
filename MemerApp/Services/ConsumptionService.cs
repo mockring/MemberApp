@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
-using MemerApp.Data;
-using MemerApp.Dtos;
-using MemerApp.Models;
+using MemberApp.Data;
+using MemberApp.Dtos;
+using MemberApp.Models;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
+using MemberApp.Interface;
 
-namespace MemerApp.Services
+namespace MemberApp.Services
 {
     public class ConsumptionService : IConsumptionService
     {

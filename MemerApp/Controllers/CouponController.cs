@@ -1,11 +1,11 @@
-﻿using MemerApp.Dtos;
-using MemerApp.Models;
-using MemerApp.Services;
+﻿using MemberApp.Dtos;
+using MemberApp.Interface;
+using MemberApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemerApp.Controllers
+namespace MemberApp.Controllers
 {
     public class CouponController : Controller
     {

@@ -1,5 +1,7 @@
-using MemerApp.Data;          // AppDbContext
-using MemerApp.Services;     // IMemberService + MemberService
+using MemberApp.Data;          // AppDbContext
+using MemberApp.Interface;
+using MemberApp.Services;     // IMemberService + MemberService
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 3. µù¥UService¨ì DI ®e¾¹
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/User/Login";
+        options.LogoutPath = "/User/Logout";
+    });
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICouponService, CouponService>();

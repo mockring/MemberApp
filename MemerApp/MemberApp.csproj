@@ -20,7 +20,9 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="ViewComponents\" />
     <Folder Include="ValidationAttribute\" />
+    <Folder Include="Views\Shared\Components\" />
   </ItemGroup>
 
 </Project>

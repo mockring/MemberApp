@@ -1,4 +1,4 @@
-namespace MemerApp.Models
+namespace MemberApp.ViewModels
 {
     public class ErrorViewModel
     {

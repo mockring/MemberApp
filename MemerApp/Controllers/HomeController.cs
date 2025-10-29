@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using MemerApp.Models;
+using MemberApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MemerApp.Controllers
+namespace MemberApp.Controllers
 {
     public class HomeController : Controller
     {

@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using MemerApp.Data;
-using MemerApp.Dtos;
-using MemerApp.Models;
+using MemberApp.Data;
+using MemberApp.Dtos;
+using MemberApp.Interface;
+using MemberApp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MemerApp.Services
+namespace MemberApp.Services
 {
     public class CouponService : ICouponService
     {
